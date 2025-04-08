@@ -21,115 +21,12 @@
         <div id="sites-list"></div>
         <!-- Аналогичные секции для других таблиц -->
     </div>
-
+    <script src="/static/script.js"></script>
     <script>
     // JavaScript код для работы с API
     $(document).ready(function() {
         loadSites();
     });
-    function loadSites() {
-        $.get("/sites/", function(data) {
-            let html = '<table><tr><th>ID</th><th>Name</th><th>URL</th><th>Filename</th></tr>';
-            data.forEach(site => {
-                html += `<tr>
-                    <td class="site-id-${site.id}">${site.id}</td>
-                    <td class="site-name-${site.id}"><a href="/admin/site/${site.id}">${site.name}</a></td>
-                    <td class="site-url-${site.id}"><a href="${site.url}">${site.url}</a></td>
-                    <td class="site-file-${site.id}">${site.filename}</td>
-                    <td class="site-update-${site.id}"><button onclick='updateSiteBtn(${site.id});'>✏️</button></td>
-                    <td class="site-delete-${site.id}"><button onclick='deleteSite(${site.id});'>-</button></td>
-                </tr>`;
-            });
-            html += `<tr>
-                <td></td>
-                <td><input class='new-site-name' name='new-site-name' placeholder="введите название сайта"></td>
-                <td><input class='new-site-url' name='new-site-url' placeholder="введите ссылку сайта"></td>
-                <td><input class='new-site-file' name='new-site-file' placeholder="введите название файла"></td>
-                <td><button onclick='createSite();'>+</button></td></tr></table>`;
-            $("#sites-list").html(html);
-        });
-    }
-    // JavaScript код для создания нового сайта
-    function createSite() {
-        const name = document.querySelector('.new-site-name').value;
-        const url = document.querySelector('.new-site-url').value;
-        const filename = document.querySelector('.new-site-file').value;
-        arr = {name: name, url: url, filename: filename};
-        const response = $.ajax({
-                    url: '/sites/',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(arr),
-                    success: function (response) {
-                        if (response['status_code'] == 200){
-                            console.log(response['detail']);
-                            loadSites();
-                        } else{
-                            console.log(response['detail']);
-                        }
-                    },
-                    error: function () {
-                        console.log("error");
-                    }
-                });
-    }
-    function updateSiteBtn(id) {
-        const name = document.querySelector('.site-name-' + id).textContent;
-        const url = document.querySelector('.site-url-' + id).textContent;
-        const filename = document.querySelector('.site-file-' + id).textContent;
-        document.querySelector('.site-name-' + id).innerHTML = `<input class='input-site-name-${id}' name='input-site-name' value='${name}'></input>`;
-        document.querySelector('.site-url-' + id).innerHTML = `<input class='input-site-url-${id}' name='input-site-url' value='${url}'></input>`;
-        document.querySelector('.site-file-' + id).innerHTML = `<input class='input-site-file-${id}' name='input-site-file' value='${filename}'></input>`;
-        document.querySelector('.site-update-' + id).innerHTML = `<button onclick='updateSite(${id});'>✏️</button>`;
-        document.querySelector('.site-delete-' + id).innerHTML = `<button onclick='cancelUpdate(${id});'>x</button>`;
-    }
-    function deleteSite(id) {
-        const response = $.ajax({
-                    url: '/sites/' + id,
-                    type: 'DELETE',
-                    success: function (response) {
-                        if (response['status_code'] == 200){
-                            console.log(response['detail']);
-                            loadSites();
-                        } else{
-                            console.log(response['detail']);
-                        }
-                    },
-                    error: function () {
-                        console.log("error");
-                    }
-                });
-    }
-    function cancelUpdate(id) {
-        document.querySelector('.site-name-' + id).innerHTML = '<a href="/admin/site/' + id + '">' + document.querySelector('.input-site-name-' + id).value + '</a>';
-        document.querySelector('.site-url-' + id).innerHTML = '<a href="/admin/site/' + id + '">' + document.querySelector('.input-site-url-' + id).value + '</a>';
-        document.querySelector('.site-file-' + id).innerHTML = document.querySelector('.input-site-file-' + id).value;
-        document.querySelector('.site-update-' + id).innerHTML = `<button onclick='updateSiteBtn(${id});'>✏️</button>`;
-        document.querySelector('.site-delete-' + id).innerHTML = `<button onclick='deleteSite(${id});'>-</button>`;
-    }
-    function updateSite(id) {
-        const name = document.querySelector('.input-site-name-' + id).value;
-        const url = document.querySelector('.input-site-url-' + id).value;
-        const filename = document.querySelector('.input-site-file-' + id).value;
-        arr = {name: name, url: url, filename: filename};
-        const response = $.ajax({
-                    url: '/sites/' + id,
-                    type: 'PUT',
-                    contentType: 'application/json',
-                    data: JSON.stringify(arr),
-                    success: function (response) {
-                        if (response['status_code'] == 200){
-                            console.log(response['detail']);
-                            loadSites();
-                        } else{
-                            console.log(response['detail']);
-                        }
-                    },
-                    error: function () {
-                        console.log("error");
-                    }
-                });
-    }
     </script>
 </body>
 </html>

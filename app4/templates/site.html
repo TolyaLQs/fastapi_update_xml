@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
@@ -10,6 +10,7 @@
     <style>
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+
     </style>
 </head>
 <body>
@@ -20,10 +21,13 @@
         <div id="sites-list"></div>
         <!-- Аналогичные секции для других таблиц -->
     </div>
+<script src="/static/script.js"></script>
 <script>
 $(document).ready(function() {
         loadSites();
     });
+</script>
+<script>
     function loadSites() {
         $.get("/site/{{site_id}}", function(data) {
             let html = `<table>
@@ -49,13 +53,15 @@ $(document).ready(function() {
                     html += `${product.name}, `;
                 });
                 html += `</td>
-                        <td class="category-update-${category.id}"><button onclick='updateSiteBtn(${category.id});'>✏️</button></td>
+                        <td class="category-update-${category.id}"><button onclick='updateCategoryBtn(${category.id});'>✏️</button></td>
                         </tr>
                         <tr>
                         <td class="category-parent-id-${category.id}">${category.parent_id}</td>
                         <td class="category-parent-name-${category.id}">`;
                 if (category.parent) {
                     html += `${category.parent.name}`;
+                } else{
+                    html += '-';
                 }
                 html += `</td>
                         <td class="category-description-${category.id}">`;
@@ -63,99 +69,16 @@ $(document).ready(function() {
                     html += `${description.text}, `;
                 });
                 html += `</td>
-                        <td class="category-delete-${category.id}"><button onclick='deleteSite(${category.id});'>-</button></td>
+                        <td class="category-delete-${category.id}"><button onclick='deleteCategory(${category.id});'>-</button></td>
                     </tr>`;
             });
             html += `<tr>
                 <td></td>
                 <td><input class='new-category-name' name='new-category-name' placeholder="введите название категории"></td>
                 <td><input class='new-category-parent-id' name='new-category-parent-id' placeholder="введите ид род. категории"></td>
-                <td><button onclick='createCategory();'>+</button></td></tr></table>`;
+                <td><button onclick='createCategory(${data['site'].id});'>+</button></td></tr></table>`;
             $("#sites-list").html(html);
         });
-    }
-    function updateSiteBtn(id) {
-        const name = document.querySelector('.site-name-' + id).textContent;
-        const url = document.querySelector('.site-url-' + id).textContent;
-        const filename = document.querySelector('.site-file-' + id).textContent;
-        document.querySelector('.site-name-' + id).innerHTML = `<input class='input-site-name-${id}' name='input-site-name' value='${name}'></input>`;
-        document.querySelector('.site-url-' + id).innerHTML = `<input class='input-site-url-${id}' name='input-site-url' value='${url}'></input>`;
-        document.querySelector('.site-file-' + id).innerHTML = `<input class='input-site-file-${id}' name='input-site-file' value='${filename}'></input>`;
-        document.querySelector('.site-update-' + id).innerHTML = `<button onclick='updateSite(${id});'>✏️</button>`;
-        document.querySelector('.site-delete-' + id).innerHTML = `<button onclick='cancelUpdate(${id});'>x</button>`;
-    }
-    function deleteSite(id) {
-        const response = $.ajax({
-                    url: '/sites/' + id,
-                    type: 'DELETE',
-                    success: function (response) {
-                        if (response['status_code'] == 200){
-                            window.location.href = "/admin";
-                        } else{
-                            console.log(response['detail']);
-                        }
-                    },
-                    error: function () {
-                        console.log("error");
-                    }
-                });
-    }
-    function cancelUpdate(id) {
-        document.querySelector('.site-name-' + id).innerHTML = '<a href="/admin/site/' + id + '">' + document.querySelector('.input-site-name-' + id).value + '</a>';
-        document.querySelector('.site-url-' + id).innerHTML = '<a href="/admin/site/' + id + '">' + document.querySelector('.input-site-url-' + id).value + '</a>';
-        document.querySelector('.site-file-' + id).innerHTML = document.querySelector('.input-site-file-' + id).value;
-        document.querySelector('.site-update-' + id).innerHTML = `<button onclick='updateSiteBtn(${id});'>✏️</button>`;
-        document.querySelector('.site-delete-' + id).innerHTML = `<button onclick='deleteSite(${id});'>-</button>`;
-    }
-    function updateSite(id) {
-        const name = document.querySelector('.input-site-name-' + id).value;
-        const url = document.querySelector('.input-site-url-' + id).value;
-        const filename = document.querySelector('.input-site-file-' + id).value;
-        arr = {name: name, url: url, filename: filename};
-        const response = $.ajax({
-                    url: '/sites/' + id,
-                    type: 'PUT',
-                    contentType: 'application/json',
-                    data: JSON.stringify(arr),
-                    success: function (response) {
-                        if (response['status_code'] == 200){
-                            console.log(response['detail']);
-                            loadSites();
-                        } else{
-                            console.log(response['detail']);
-                        }
-                    },
-                    error: function () {
-                        console.log("error");
-                    }
-                });
-    }
-    function createCategory() {
-        const name = document.querySelector('.new-category-name').value;
-        let parent_id = document.querySelector('.new-category-parent-id').value;
-        const site_id = {{site_id}};
-        if (parent_id == '') {
-            parent_id = null;
-        }
-        arr = {name: name, parent_id: parent_id, site_id: site_id};
-        console.log(arr)
-        const response = $.ajax({
-                    url: '/categories/',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(arr),
-                    success: function (response) {
-                        if (response['status_code'] == 200){
-                            console.log(response['detail']);
-                            loadSites();
-                        } else{
-                            console.log(response['detail']);
-                        }
-                    },
-                    error: function () {
-                        console.log("error");
-                    }
-                });
     }
 </script>
 </body>
