@@ -176,6 +176,31 @@ class ProductCreate(ProductBase):
     pass
 
 
+class ProductUpdate(ProductBase):
+    pass
+
+
+@router.delete("/products/{product_id}")
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not product:
+        return {'status_code': 400, 'detail': "Product not found"}
+    db.delete(product)
+    db.commit()
+    return {'status_code': 200, 'detail': 'Product deleted'}
+
+@router.put("/products/{product_id}")
+def update_product(product_id: int, product: ProductUpdate, db: Session = Depends(get_db)):
+    db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not db_product:
+        return {'status_code': 400, 'detail': "Product not found"}
+    for key, value in product.dict().items():
+        setattr(db_product, key, value)
+    db.commit()
+    db.refresh(db_product)
+    return {'status_code': 200, 'detail': 'Product update'}
+
+
 @router.post("/products/")
 def create_product(product: ProductBase, db: Session = Depends(get_db)):
     if product.dict()['name'] == '':
@@ -205,6 +230,33 @@ class DescriptionBase(BaseModel):
 class DescriptionCreate(DescriptionBase):
     pass
 
+
+class DescriptionUpdate(DescriptionBase):
+    pass
+
+
+@router.delete("/descriptions/{description_id}")
+def delete_description(description_id: int, db: Session = Depends(get_db)):
+    description = db.query(models.Description).filter(models.Description.id == description_id).first()
+    if not description:
+        return {'status_code': 400, 'detail': "Description not found"}
+    db.delete(description)
+    db.commit()
+    return {'status_code': 200, 'detail': 'Description deleted'}
+
+
+@router.put("/descriptions/{description_id}")
+def update_description(description_id: int, description: DescriptionUpdate, db: Session = Depends(get_db)):
+    db_description = db.query(models.Description).filter(models.Description.id == description_id).first()
+    if not db_description:
+        return {'status_code': 400, 'detail': "Description not found"}
+    for key, value in description.dict().items():
+        setattr(db_description, key, value)
+    db.commit()
+    db.refresh(db_description)
+    return {'status_code': 200, 'detail': 'Description update'}
+
+
 @router.post("/descriptions/")
 def create_description(description: DescriptionBase, db: Session = Depends(get_db)):
     if description.dict()['text'] == '':
@@ -221,6 +273,7 @@ def create_description(description: DescriptionBase, db: Session = Depends(get_d
     db.refresh(db_description)
     return db_description
 
+
 @router.get("/descriptions/")
 def read_descriptions(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(models.Description).offset(skip).limit(limit).all()
@@ -235,6 +288,33 @@ class TimeMarkBase(BaseModel):
 
 class TimeMarkCreate(TimeMarkBase):
     pass
+
+
+class TimeMarkUpdate(TimeMarkBase):
+    pass
+
+
+@router.delete("/timemarks/{timemark_id}")
+def delete_timemark(timemark_id: int, db: Session = Depends(get_db)):
+    timemark = db.query(models.TimeMark).filter(models.TimeMark.id == timemark_id).first()
+    if not timemark:
+        return {'status_code': 400, 'detail': "Timemark not found"}
+    db.delete(timemark)
+    db.commit()
+    return {'status_code': 200, 'detail': 'Timemark deleted'}
+
+
+@router.put("/timemarks/{timemark_id}")
+def update_timemark(timemark_id: int, timemark: TimeMarkUpdate, db: Session = Depends(get_db)):
+    db_timemark = db.query(models.TimeMark).filter(models.TimeMark.id == timemark_id).first()
+    if not db_timemark:
+        return {'status_code': 400, 'detail': "Timemark not found"}
+    for key, value in timemark.dict().items():
+        setattr(db_timemark, key, value)
+    db.commit()
+    db.refresh(db_timemark)
+    return {'status_code': 200, 'detail': 'Timemark update'}
+
 
 @router.post("/timemarks/")
 def create_timemark(timemark: TimeMarkBase, db: Session = Depends(get_db)):
@@ -255,6 +335,7 @@ def create_timemark(timemark: TimeMarkBase, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_timemark)
     return db_timemark
+
 
 @router.get("/timemarks/")
 def read_timemarks(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
