@@ -50,7 +50,7 @@ $(document).ready(function() {
                     <td class="category-name-${category.id}">${category.name}</td>
                     <td class="category-product-${category.id}">`;
                 category.products.forEach(product => {
-                    html += `${product.name}, `;
+                    html += `<span class="category-product-${product.id}">${product.name}</span>,`;
                 });
                 html += `</td>
                         <td class="category-update-${category.id}"><button onclick='updateCategoryBtn(${category.id});'>✏️</button></td>
@@ -59,7 +59,7 @@ $(document).ready(function() {
                         <td class="category-parent-id-${category.id}">${category.parent_id}</td>
                         <td class="category-parent-name-${category.id}">`;
                 if (category.parent) {
-                    html += `${category.parent.name}`;
+                    html += `<span class="category-parent-name-${category.parent.id}">${category.parent.name}</span>,`;
                 } else{
                     html += '-';
                 }

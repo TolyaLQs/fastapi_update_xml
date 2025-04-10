@@ -5,6 +5,10 @@ function uploadFile() {
     formData.append('file', file);
     uploadInput = document.getElementById('fileInput');
     uploadBtn = document.getElementById('uploadBtn');
+    load_file = document.querySelector('.load_file');
+    load_file.style.display = 'none';
+    loading = document.querySelector('.loading');
+    loading.style.display = 'flex';
     uploadInput.style.display = 'none';
     uploadBtn.style.display = 'none';
     fetch('/upload/', {
@@ -13,8 +17,35 @@ function uploadFile() {
     })
     .then(response => response.json())
     .then(data => {
-        document.getElementById('result').innerHTML =
-            `File ${data.filename} uploaded (${data.size} bytes)`;
+        loading.style.display = 'none';
+        html = `<div class='info_file'>File ${data.filename} uploaded (${data.size} bytes)</div>
+                <div class="table_response">`;
+        data.report.forEach(site => {
+            html += `<div class='site'>
+                <div class='site_title'>${site.site_name}</div>`;
+            if (site.check_error === false){
+                html += `<div class='error_not'>Ошибок нет</div>`;
+            } else{
+                html += `<div class='error_yes'>Ошибки есть</div>`;
+            }
+            let i = 0;
+            site.products_error.forEach(product =>{
+                i = i+1;
+                if (product.offer_error === false){
+                    html += `<div class='product error_not'>`;
+                } else {
+                    html += `<div class='product error_yes'>`;
+                }
+
+                html += `<span class="product_number">${i}</span>
+                    <span class="product_id">id:${product.offer_id}</span>
+                    <span class="product_name">name:${product.offer_name}</span>`;
+                html += `</div>`;
+            })
+            html += `</div>`;
+        });
+        html += `</div>`;
+        document.getElementById('result').innerHTML = html;
     })
     .catch(error => console.error('Error:', error));
     uploadInput.style.display = 'flex';
@@ -189,3 +220,6 @@ function createProduct(id) {
 
 }
 
+function createDescription(id){
+
+}

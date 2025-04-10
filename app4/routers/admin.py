@@ -5,8 +5,10 @@ from database import SessionLocal
 import models
 from pydantic import BaseModel
 from typing import Optional, Union
+from sqlalchemy import and_
 
 router = APIRouter()
+
 
 def get_db():
     db = SessionLocal()
@@ -15,14 +17,17 @@ def get_db():
     finally:
         db.close()
 
+
 # Pydantic models
 class SiteBase(BaseModel):
     name: str
     url: str
     filename: str
 
+
 class SiteCreate(SiteBase):
     pass
+
 
 class SiteUpdate(SiteBase):
     pass
@@ -48,6 +53,7 @@ def delete_site(site_id: int, db: Session = Depends(get_db)):
     db.delete(site)
     db.commit()
     return {'status_code': 200, 'detail': 'Site update'}
+
 
 @router.put("/sites/{site_id}")
 def update_site(site_id: int, site: SiteUpdate, db: Session = Depends(get_db)):
@@ -84,6 +90,10 @@ def read_sites(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(models.Site).offset(skip).limit(limit).all()
 
 
+def all_sites(db: Session = Depends(get_db)):
+    return db.query(models.Site).all()
+
+
 @router.get("/site/{site_id}")
 def read_site(site_id: int, db: Session = Depends(get_db)):
     try:
@@ -91,7 +101,8 @@ def read_site(site_id: int, db: Session = Depends(get_db)):
         categories = db.query(models.Category).filter(models.Category.site_id == site_id).all()
         for category in categories:
             category.products = db.query(models.Product).filter(models.Product.category_id == category.id).all()
-            category.descriptions = db.query(models.Description).filter(models.Description.category_id == category.id).all()
+            category.descriptions = db.query(models.Description).filter(
+                models.Description.category_id == category.id).all()
             try:
                 category.parent = db.query(models.Category).filter(models.Category.id == category.parent_id).first()
             except:
@@ -102,6 +113,7 @@ def read_site(site_id: int, db: Session = Depends(get_db)):
     except:
         return {'status_code': 400, 'detail': "Site not found"}
 
+
 # Аналогичные CRUD операции для остальных моделей (Category, Product, Description, TimeMark)
 # Реализация аналогична вышеописанной для Sites
 
@@ -110,11 +122,14 @@ class CategoryBase(BaseModel):
     parent_id: Union[int, None]
     site_id: int
 
+
 class CategoryCreate(CategoryBase):
     pass
 
+
 class CategoryUpdate(CategoryBase):
     pass
+
 
 @router.delete("/categories/{category_id}")
 def delete_category(category_id: int, db: Session = Depends(get_db)):
@@ -131,6 +146,7 @@ def delete_category(category_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {'status_code': 200, 'detail': 'Category deleted'}
 
+
 @router.put("/categories/{category_id}")
 def update_category(category_id: int, category: CategoryUpdate, db: Session = Depends(get_db)):
     db_category = db.query(models.Category).filter(models.Category.id == category_id).first()
@@ -141,6 +157,7 @@ def update_category(category_id: int, category: CategoryUpdate, db: Session = De
     db.commit()
     db.refresh(db_category)
     return {'status_code': 200, 'detail': 'Category update'}
+
 
 @router.post("/categories/")
 def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
@@ -156,11 +173,15 @@ def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
             return {'status_code': 400, 'detail': "Site not found"}
     else:
         return {'status_code': 400, 'detail': "Site must be specified"}
+    unic = db.query(models.Category).filter(and_(models.Category.name == category.dict()['name'], models.Category.site_id == category.dict()['site_id'])).first()
+    if unic:
+        return {'status_code': 400, 'detail': "Category with this name already exists"}
     db_category = models.Category(**category.dict())
     db.add(db_category)
     db.commit()
     db.refresh(db_category)
     return {'status_code': 200, 'detail': 'Category created'}
+
 
 @router.get("/categories/")
 def read_categories(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -189,6 +210,7 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {'status_code': 200, 'detail': 'Product deleted'}
 
+
 @router.put("/products/{product_id}")
 def update_product(product_id: int, product: ProductUpdate, db: Session = Depends(get_db)):
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
@@ -211,11 +233,15 @@ def create_product(product: ProductBase, db: Session = Depends(get_db)):
             return {'status_code': 400, 'detail': "Category not found"}
     else:
         return {'status_code': 400, 'detail': "Category must be specified"}
+    unit = db.query(models.Product).filter(and_(models.Product.name == product.dict()['name'], models.Product.category_id == product.dict()['category_id'])).first()
+    if unit:
+        return {'status_code': 400, 'detail': "Product with this name already exists"}
     db_product = models.Product(**product.dict())
     db.add(db_product)
     db.commit()
     db.refresh(db_product)
     return db_product
+
 
 @router.get("/products/")
 def read_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -267,6 +293,9 @@ def create_description(description: DescriptionBase, db: Session = Depends(get_d
             return {'status_code': 400, 'detail': "Category not found"}
     else:
         return {'status_code': 400, 'detail': "Category must be specified"}
+    unit = db.query(models.Description).filter(and_(models.Description.text == description.dict()['text'], models.Description.category_id == description.dict()['category_id'])).first()
+    if unit:
+        return {'status_code': 400, 'detail': "Description with this text already exists"}
     db_description = models.Description(**description.dict())
     db.add(db_description)
     db.commit()
@@ -340,4 +369,3 @@ def create_timemark(timemark: TimeMarkBase, db: Session = Depends(get_db)):
 @router.get("/timemarks/")
 def read_timemarks(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return db.query(models.TimeMark).offset(skip).limit(limit).all()
-

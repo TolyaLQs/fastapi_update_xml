@@ -14,30 +14,40 @@ def get_db():
 
 def open_file(file):
     with open(file, "r", encoding='utf-8') as f:
-        parser = ET.XMLParser(encoding="utf-8")
+        parser = ET.XMLParser(strip_cdata=False, encoding="utf-8")
         tree = ET.parse(source=f, parser=parser)
-        root = tree.getroot()
+
         f.close()
-    return root
+    return tree
 
 
-def update_file(root):
-    print(root)
-    for shop in root:
-        for element in shop:
+def update_file(tree):
+    i=0
+    root = tree.getroot()
+    for shop in root.iter():
+        for element in shop.iter():
             if element.tag == 'categories':
-                for category in element:
-                    print(category)
+                print(len(element))
+                while len(element) > 0:
+                    element.remove(element[0])
+                    i += 1
+                    print(i)
 
 
+    return tree
 
+
+def save_file(file_name, tree):
+    pass
 
 
 def main():
     file_name = 'dealer.xml'
-    root = open_file(file_name)
-    contexts = update_file(root)
-    print(contexts)
+    save_name = 'dealer_update.xml'
+    tree = open_file(file_name)
+    tree = update_file(tree)
+    tree.write(save_name, encoding='utf-8')
+    # save_file(file_name, tree)
 
 
 if __name__ == '__main__':

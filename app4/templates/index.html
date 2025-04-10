@@ -3,12 +3,16 @@
 <head>
     <title>File Upload</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <a href="/admin">Admin Panel</a>
-    <h1>Upload File</h1>
-    <input type="file" id="fileInput">
-    <button id='uploadBtn' onclick="uploadFile()">Upload</button>
+    <div class="menu"><a href="/admin">Настройки</a></div>
+    <div class="load_file">
+        <h1>Upload File</h1>
+        <input type="file" id="fileInput">
+        <button id='uploadBtn' onclick="uploadFile()">Upload</button>
+    </div>
+    <div class="loading"></div>
     <div id="result"></div>
 
     <script src="/static/script.js"></script>
