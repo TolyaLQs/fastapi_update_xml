@@ -7,20 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Title</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
-
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <a href="/admin">Back <</a>
-    <h1>Site {{site_id}} Panel</h1>
-    <div class="table-section">
-        <div class="title"><h2>Sites</h2><button onclick="loadSites();">update</button></div>
-        <div id="sites-list"></div>
-        <!-- Аналогичные секции для других таблиц -->
-    </div>
+<div class="menu"><a href="/admin">Back <</a></div>
+<div class="title"><h1>Site <span class="site-id">{{site_id}}</span> Panel</h1><button onclick="loadSites();">update</button></div>
+<div id="sites-list"></div>
 <script src="/static/script.js"></script>
 <script>
 $(document).ready(function() {
@@ -30,53 +22,73 @@ $(document).ready(function() {
 <script>
     function loadSites() {
         $.get("/site/{{site_id}}", function(data) {
-            let html = `<table>
-                        <tr><th>ID</th><th>Name</th><th>URL</th><th>Filename</th></tr>`;
-            console.log(data);
-            html += `<tr>
-                <td class="site-id-${data['site'].id}">${data['site'].id}</td>
-                <td class="site-name-${data['site'].id}"><a href="/site/${data['site'].id}">${data['site'].name}</a></td>
-                <td class="site-url-${data['site'].id}"><a href="${data['site'].url}">${data['site'].url}</a></td>
-                <td class="site-file-${data['site'].id}">${data['site'].filename}</td>
-                <td class="site-update-${data['site'].id}"><button onclick='updateSiteBtn(${data['site'].id});'>✏️</button></td>
-                <td class="site-delete-${data['site'].id}"><button onclick='deleteSite(${data['site'].id});'>-</button></td>
-            </tr>`;
-
-            html += `<tr><th>Id категории</th><th>Имя категории</th><th>Паттерн названия</th></tr>
-                     <tr><th>Id род. категории</th><th>Имя род. категории</th><th>Паттерн описания</th></tr>`;
+            let html = `<div class='site-title'>
+                <span>ID: ${data['site'].id}</span>
+                <span>Name: ${data['site'].name}</span>
+                <span>URL: <a href="/site/${data['site'].id}"></a></span>
+                <span>Filename: ${data['site'].filename}</span>
+                <span><button onclick='updateSiteBtn(${data['site'].id});'>✏️</button></span>
+                <span><button onclick='deleteSite(${data['site'].id});'>-</button></span>
+                </div>`;
+            html += `<div class="title-categories">
+                    <div class="row-1"><span class="column-id-title">Id категории</span>
+                    <span class="column-name-title">Имя категории</span>
+                    <span class="column-product-title">Паттерн названия</span>
+                    <span class="column-update-title"></span>
+                    <span class="column-delete-title"></span>
+                    </div>
+                    <div class="row-2"><span class="column-id-title">Id род. категории</span>
+                    <span class="column-name-title">Имя род. категории</span>
+                    <span class="column-product-title">Паттерн описания</span>
+                    <span class="column-update-title"></span>
+                    <span class="column-delete-title"></span>
+                    </div></div>`;
             data['categories'].forEach(category => {
-                html += `<tr>
-                    <td class="category-id-${category.id}">${category.id}</td>
-                    <td class="category-name-${category.id}">${category.name}</td>
-                    <td class="category-product-${category.id}">`;
+                html += `<div class="table-section">
+                    <div class="row-category"><div class="row-1">
+                    <span class="column-1 category-id-${category.id}">${category.id}</span>
+                    <span class="column-2 category-name-${category.id}">${category.name}</span>
+                    <div class="column-3 div-category-product-${category.id}">`;
                 category.products.forEach(product => {
                     html += `<span class="category-product-${product.id}">${product.name}</span>,`;
                 });
-                html += `</td>
-                        <td class="category-update-${category.id}"><button onclick='updateCategoryBtn(${category.id});'>✏️</button></td>
-                        </tr>
-                        <tr>
-                        <td class="category-parent-id-${category.id}">${category.parent_id}</td>
-                        <td class="category-parent-name-${category.id}">`;
-                if (category.parent) {
-                    html += `<span class="category-parent-name-${category.parent.id}">${category.parent.name}</span>,`;
+                html += `<button class="new-product-${category.id}" onclick='newProduct(${category.id});'>+</button></div>
+                        <span class="column-4 category-update-${category.id}">
+                        <button onclick='updateCategoryBtn(${category.id});'>✏️</button></span>
+                        </div>
+                        <div class="row-2">
+                        <span class="column-1 category-parent-id-${category.id}">`;
+                if (category.parent_id) {
+                    html += `${category.parent_id}`;
                 } else{
                     html += '-';
                 }
-                html += `</td>
-                        <td class="category-description-${category.id}">`;
+                html += `</span><span class="column-2 category-parent-name-${category.id}">`;
+                if (category.parent) {
+                    html += `${category.parent.name}`;
+                } else{
+                    html += '-';
+                }
+                html += `</span>
+                        <div class="column-3 category-description-${category.id}">`;
                 category.descriptions.forEach(description => {
-                    html += `${description.text}, `;
+                    html += `<span class="category-description-${description.id}">${description.text}</span>,`;
                 });
-                html += `</td>
-                        <td class="category-delete-${category.id}"><button onclick='deleteCategory(${category.id});'>-</button></td>
-                    </tr>`;
+                html += `<button class="new-description-${category.id}" onclick='newDescription(${category.id});'>+</button>
+                        </div><span class="column-4 category-delete-${category.id}">
+                        <button onclick='deleteCategory(${category.id});'>-</button></span>
+                        </div></div>`;
             });
-            html += `<tr>
-                <td></td>
-                <td><input class='new-category-name' name='new-category-name' placeholder="введите название категории"></td>
-                <td><input class='new-category-parent-id' name='new-category-parent-id' placeholder="введите ид род. категории"></td>
-                <td><button onclick='createCategory(${data['site'].id});'>+</button></td></tr></table>`;
+            html += `<div class="add-category">
+                <span class="column-name-cat">
+                <input class='new-category-name' name='new-category-name' placeholder="введите название категории">
+                </span>
+                <span class="column-parent-id-cat">
+                <input class='new-category-parent-id' name='new-category-parent-id' placeholder="введите ид род. категории">
+                </span>
+                <span class="new-add-cat">
+                <button onclick='createCategory(${data['site'].id});'>+</button>
+                </span></div>`;
             $("#sites-list").html(html);
         });
     }

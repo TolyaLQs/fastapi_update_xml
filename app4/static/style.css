@@ -24,7 +24,7 @@ body {
 .menu a:hover{
     background-color: #aaaaaa;
 }
-.load_file{
+.load-file{
     border: 5px solid #888888;
     background-color: #aaaaaa;
     padding: 20px;
@@ -56,12 +56,12 @@ body {
     75%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 100%)}
     100% {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,0 100%,0 0)}
 }
-.info_file{
+.info-file{
     padding: 10px;
     font-size: 18px;
     background-color: #fff;
 }
-.table_response{
+.table-response{
     width: 100%;
     padding: 10px;
     display: flex;
@@ -71,7 +71,7 @@ body {
     display: flex;
     flex-direction: column;
 }
-.site_title{
+.site-title{
     font-size: 16px;
     display: flex;
     align-items:center;
@@ -79,12 +79,12 @@ body {
     background-color: #ffffff;
     border: 2px solid #000000;
 }
-.error_not{
+.error-not{
     padding: 10px;
     background-color: green;
     font-size: 14px;
 }
-.error_yes{
+.error-yes{
     padding: 10px;
     background-color: red;
     font-size: 14px;
@@ -97,8 +97,16 @@ body {
 .product span{
     padding: 5px;
 }
-.product_name{
+.product-name{
     width: 150px;
     overflow: hidden;
     height: 30px;
+}
+.title{
+    margin: 10px;
+    display: flex;
+    padding: 10px;
+}
+.sites-list{
+
 }
