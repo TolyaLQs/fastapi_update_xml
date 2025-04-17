@@ -1,0 +1,51 @@
+<!-- templates/admin.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .table-section { margin: 20px; padding: 15px; border: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        .form-row { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <a href="/">Back <</a>
+    <h1>Admin Panel</h1>
+
+    <div class="table-section">
+        <h2>Sites</h2>
+        <div id="sites-list"></div>
+        <!-- Аналогичные секции для других таблиц -->
+    </div>
+
+    <script>
+    // JavaScript код для работы с API
+    $(document).ready(function() {
+        loadSites();
+
+        function loadSites() {
+            $.get("/sites/", function(data) {
+                if (data){
+                    let html = '<table><tr><th>ID</th><th>Name</th><th>URL</th><th>Filename</th></tr>';
+                    data.forEach(site => {
+                        html += `<tr>
+                            <td>${site.id}</td>
+                            <td><a href="/site/${site.id}">${site.name}</a></td>
+                            <td><a href="${site.url}">${site.url}</a></td>
+                            <td>${site.filename}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                }else{
+                    let html = 'Not found sites!';
+                };
+                $("#sites-list").html(html);
+            });
+        }
+    });
+    </script>
+</body>
+</html>

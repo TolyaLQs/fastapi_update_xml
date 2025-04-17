@@ -1,0 +1,32 @@
+<!-- templates/admin.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .table-section { margin: 20px; padding: 15px; border: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        .form-row { margin: 10px 0; }
+        .title { display: flex; justify-content:space-between;}
+    </style>
+</head>
+<body>
+    <a href="/">Back <</a>
+    <h1>Admin Panel</h1>
+
+    <div class="table-section">
+        <div class="title"><h2>Sites</h2><button onclick="loadSites();">update</button></div>
+        <div id="sites-list"></div>
+        <!-- Аналогичные секции для других таблиц -->
+    </div>
+    <script src="/static/script.js"></script>
+    <script>
+    // JavaScript код для работы с API
+    $(document).ready(function() {
+        loadSites();
+    });
+    </script>
+</body>
+</html>
