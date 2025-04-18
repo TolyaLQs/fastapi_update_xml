@@ -226,7 +226,7 @@ def update_product(product_id: int, product: ProductUpdate, db: Session = Depend
         setattr(db_product, key, value)
     db.commit()
     db.refresh(db_product)
-    return {'status-code': 200, 'detail': 'Product update'}
+    return {'status-code': 200, 'detail': 'Product update', 'db_product': db_product}
 
 
 @router.post("/products/")

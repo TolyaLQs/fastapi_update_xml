@@ -50,7 +50,7 @@ $(document).ready(function() {
                     <td class="column-3 div-category-product-${category.id}">`;
                 if (category.products) {
                     category.products.forEach(product => {
-                        html += `<span class="category-product-${product.id}">${product.name}</span>, `;
+                        html += `<span class="category-product-${product.id} ${product.category_id}" onclick="updateProductBtn(${product.id});">${product.name}</span>, `;
                     });
                 } else{
                     html += '-';

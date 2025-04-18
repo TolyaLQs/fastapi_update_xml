@@ -20,6 +20,7 @@ function uploadFile() {
         loading.style.display = 'none';
         html = `<div class='info-file'>File ${data.filename} uploaded (${data.size} bytes)</div>
                 <div class="table-response">`;
+
         data.report.forEach(site => {
             html += `<div class='site'>
                 <div class='site-title'>${site.site_name}</div>`;
@@ -29,19 +30,21 @@ function uploadFile() {
                 html += `<div class='error-yes'>Ошибки есть</div>`;
             }
             let i = 0;
-            site.products_error.forEach(product =>{
-                i = i+1;
-                if (product.offer_error === false){
-                    html += `<div class='product error-not'>`;
-                } else {
-                    html += `<div class='product error-yes'>`;
-                }
+            if (site.products_error.length > 0) {
+                site.products_error.forEach(product =>{
+                    i = i+1;
+                    if (product.offer_error === false){
+                        html += `<div class='product error-not'>`;
+                    } else {
+                        html += `<div class='product error-yes'>`;
+                    }
 
-                html += `<span class="product-number">${i}</span>
-                    <span class="product-id">id:${product.offer_id}</span>
-                    <span class="product-name">name:${product.offer_name}</span>`;
-                html += `</div>`;
-            })
+                    html += `<span class="product-number">${i}</span>
+                        <span class="product-id">id:${product.offer_id}</span>
+                        <span class="product-name">name:${product.offer_name}</span>`;
+                    html += `</div>`;
+                })
+            }
             if (site.message){
                 html += `<div class="response-message">${site.message}</div>`
             }
@@ -51,7 +54,9 @@ function uploadFile() {
         html += `</div>`;
         document.getElementById('result').innerHTML = html;
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.log('Error:', error);
+    });
     uploadInput.style.display = 'flex';
     uploadBtn.style.display = 'flex';
 }
@@ -276,10 +281,13 @@ function createProduct(id) {
                     console.log(response);
                     if (response['status-code'] == 200){
                         console.log(response['detail']);
-                        html = `<span class="category-product-${response['db_product']['id']}">${response['db_product']['name']}</span>, `;
-                        console.log('div: ' + div);
-                        div.remove(name_input);
-                        div.prepend(html);
+                        create_span = document.createElement('span');
+                        create_span.classList.add('category-product-'+response['db_product']['id']);
+                        create_span.classList.add(category_id);
+                        create_span.setAttribute('onclick', 'updateProductBtn('+response['db_product']['id']+');');
+                        create_span.innerHTML = response['db_product']['name'];
+                        div.removeChild(name_input);
+                        btn_create.before(create_span);
                         btn_create.setAttribute('onclick', 'newProductBtn(${id});');
                     } else{
                         console.log(response['detail']);
@@ -295,14 +303,77 @@ function newProductBtn(id) {
     td_category_product = document.querySelector('.div-category-product-'+id);
     create_input_product = document.createElement('input');
     create_input_product.classList.add('create-new-product-input-'+id);
-    td_category_product.prepend(create_input_product);
+    new_product_btn = document.querySelector('.new-product-'+id);
+    new_product_btn.before(create_input_product);
     document.querySelector('.new-product-'+id).setAttribute('onclick', 'createProduct('+id+');');
 }
 
-function updateProduct(id) {
+function updateProductBtn(id) {
+    text_span = document.querySelector('.category-product-'+id).textContent;
+    span_product = document.querySelector('.category-product-'+id);
+    span_product.setAttribute('onclick', '');
+    console.log(text_span);
+    input_tag = document.createElement('input');
+    input_tag.classList.add('category-product-input-'+id);
+    input_tag.value = text_span;
+    input_update_btn = document.createElement('button');
+    input_update_btn.classList.add('category-product-button-'+id);
+    input_update_btn.setAttribute('onclick', 'updateProduct('+id+');');
+    input_update_btn.innerHTML = '✏️';
+    span_product.innerHTML = '';
+    span_product.append(input_tag);
+    span_product.append(input_update_btn);
+}
 
+function updateProduct(id) {
+    span_product = document.querySelector('.category-product-'+id);
+    input_product_name = document.querySelector('.category-product-input-'+id);
+    name = input_product_name.value;
+    category_id = span_product.classList[1];
+    input_update_btn = document.querySelector('.category-product-button-'+id);
+    arr = {name: name, category_id: category_id};
+    if (name) {
+        const response = $.ajax({
+                    url: '/products/' + id,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(arr),
+                    success: function (response) {
+                        if (response['status-code'] == 200){
+                            console.log(response['detail']);
+                            span_product.removeChild(input_product_name);
+                            span_product.removeChild(input_update_btn);
+                            span_product.setAttribute('onclick', 'updateProductBtn('+id+');');
+                            html = `${response['db_product']['name']}`;
+                            span_product.innerHTML = html;
+                        } else{
+                            console.log(response['detail']);
+                        }
+                    },
+                    error: function () {
+                        console.log("error");
+                    }
+                });
+    } else {
+        const response = $.ajax({
+                url: '/products/' + id,
+                type: 'DELETE',
+                success: function (response) {
+                    if (response['status-code'] == 200){
+                        console.log(response['detail']);
+                        span_product.remove();
+                    } else{
+                        console.log(response['detail']);
+                    }
+                },
+                error: function () {
+                    console.log("error");
+                }
+            });
+    }
 }
 
 function createDescription(id){
 
 }
+
